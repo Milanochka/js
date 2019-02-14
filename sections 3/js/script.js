@@ -87,8 +87,42 @@ window.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
         setClock('timer',deadLine);
 
+});
 
+//modal
+
+let more = document.querySelector('.more'),
+    overlay = document.querySelector('.overlay'),
+    close = document.querySelector('.popup-close'),
+    moreBtn = document.querySelectorAll('.description-btn');
+
+function openPopup(item) {
+    item.addEventListener('click', function () {
+        overlay.style.display = 'block';
+        this.classList.add('more-splash');
+        document.body.style.overflow = 'hidden';
+    });
+    close.addEventListener('click', function () {
+        overlay.style.display = 'none';
+        more.classList.remove('more-splash');
+        document.body.style.overflow = '';
+    });
+};
+
+
+openPopup(more);
+
+
+
+let modalWrapper = addEventListener('mousemove', function (e) {
+    if(e.target.classList.contains('description-btn')) {
+        for( let i = 0; i < moreBtn.length; i++ ) {
+            if (e.target == moreBtn[i]) {
+                openPopup(e.target);
+
+            }
+        }
+    }
 });
