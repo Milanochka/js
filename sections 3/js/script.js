@@ -130,51 +130,65 @@ window.addEventListener('DOMContentLoaded', function() {
 
     /// form
 
-    let message = {
-        loading: 'Загрузка...',
-        success: 'Спасибо! Скоро мы с вами свяжемся',
-        failure: "Что-то пошло не так..."
+    let msg = {
+        loading: 'Загрузка',
+        success: 'Спасибо, мы скоро с вами свяжемся',
+        error: 'Что-то пошло не так'
     };
 
-    let form = document.getElementsByTagName('form')[1],
-        input = form.getElementsByTagName('input'),
-        statusMessage = document.createElement('div');
+    let form = document.getElementsByTagName('form')[0],
+        modalForm = document.getElementsByTagName('form')[1],
+        statMsg = document.createElement('div');
 
-        statusMessage.classList.add('status');
+    statMsg.classList.add('status');
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        form.appendChild(statusMessage);
+    function sendForm(element) {
+        element.addEventListener('submit', function (e) {
+            e.preventDefault();
+            element.appendChild(statMsg);
+            let formData = new FormData(element);
 
-        let request = new XMLHttpRequest();
-        request.open('POST', 'server.php');
-        request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+            function statusData(data) {
 
-        let formData = new FormData(form);
+                return new Promise(function(resolve, reject) {
 
-        let obj = {};
+                    let request = new XMLHttpRequest();
+                    request.open('POST', 'server.php');
+                    request.setRequestHeader('Content-Type', 'application/x-www-formurlencoded');
 
-        formData.forEach(function (value, key) {
-            obj[key] = value;
-        });
+                    request.onreadystatechange = function () {
+                        if (request.readyState < 4) {
+                            resolve();
+                        } else if (request.readyState === 4 && request.status == 200) {
+                            resolve();
+                        } else {
+                            reject();
+                        }
+                    };
 
-        let json = JSON.stringify(obj);
-
-        request.send(json);
-
-        request.addEventListener('readystatechange', function () {
-            if (request.readyState < 4) {
-                statusMessage.innerHTML = message.loading;
-            } else if (request.readyState === 4 && request.srtatus == 200) {
-                statusMessage.innerHTML = message.success;
-            } else {
-                statusMessage.innerHTML = message.failure;
+                    request.send(data);
+                });
             }
-        });
 
-        for (let i = 0; i < input.length; i++) {
-            input[i].value = '';
-        }
-    });
+            function clearInputs() {
+                let inputs = element.getElementsByTagName('input');
+                for (let i = 0; i < inputs.length; i++) {
+                    inputs[i].value = '';
+                };
+            }
+
+            statusData(formData)
+                .then(() => statMsg.innerHTML = msg.loading)
+                .then(() => statMsg.innerHTML = msg.success)
+                .catch(() => statMsg.innerHTML = msg.error)
+                .then(() => clearInputs())
+
+        })
+    };
+
+    sendForm(form);
+    sendForm(modalForm);
+
+
 });
 
